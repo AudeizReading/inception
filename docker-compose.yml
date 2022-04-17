@@ -8,7 +8,6 @@ services:
         restart: always
         volumes: 
             - front-vol:/var/www/html
-            - /home/$USER/data/wordpress:/usr/share/nginx/html
         ports: "30443:443"
         init: true
         profiles:
@@ -28,7 +27,6 @@ services:
         restart: always
         volumes: 
             - db-vol:/var/www/html
-            - /home/$USER/data/mariadb:<url container>
         ports: 3306
         depends_on:
             - nginx
@@ -48,7 +46,6 @@ services:
         restart: always
         volumes: 
             - front-vol:/var/www/html
-            - /home/$USER/data/wordpress:<url container>
         ports: 9000
         depends_on:
             - nginx
@@ -71,7 +68,9 @@ networks:
 
 volumes:
     front-vol:
+        - /home/$USER/data/front-vol
     db-vol:
+        - /home/$USER/data/db-vol
 
 configs:
 
