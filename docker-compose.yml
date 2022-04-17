@@ -1,0 +1,84 @@
+name: inception
+services:
+    nginx:
+        container_name: nginx
+        image: srcs/nginx
+        build:
+            context: srcs/nginx
+        restart: always
+        volumes: 
+            - front-vol:/var/www/html
+            - /home/$USER/data/wordpress:/usr/share/nginx/html
+        ports: "30443:443"
+        init: true
+        profiles:
+            - mandatory
+            - bonus
+        secrets:
+            - server-certificate
+        networks:
+            - entrypoint-tier
+            - front-tier
+
+    mariadb:
+        container_name: mariadb
+        image: srcs/mariadb
+        build:
+            context: srcs/mariadb
+        restart: always
+        volumes: 
+            - db-vol:/var/www/html
+            - /home/$USER/data/mariadb:<url container>
+        ports: 3306
+        depends_on:
+            - nginx
+            - wordpress
+        init: true
+        profiles:
+            - mandatory
+            - bonus
+        networks:
+            - back-tier
+
+    wordpress:
+        container_name: wordpress
+        image: srcs/wordpress
+        build:
+            context: srcs/wordpress
+        restart: always
+        volumes: 
+            - front-vol:/var/www/html
+            - /home/$USER/data/wordpress:<url container>
+        ports: 9000
+        depends_on:
+            - nginx
+        init: true
+        profiles:
+            - mandatory
+        networks:
+            - front-tier
+            - back-tier
+
+    env_file: .env
+
+networks:
+    entrypoint-tier:
+        attachable: true
+    front-tier:
+        attachable: true
+    back-tier:
+        attachable: true
+
+volumes:
+    front-vol:
+    db-vol:
+
+configs:
+
+secrets:
+    server-certificate:
+        file: srcs/nginx/config/server.cert
+
+profiles:
+    mandatory:
+    bonus:
