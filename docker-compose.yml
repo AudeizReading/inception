@@ -1,83 +1,93 @@
-name: inception
 services:
     nginx:
         container_name: nginx
-        image: srcs/nginx
+        image: nginx:inception
         build:
             context: srcs/nginx
         restart: always
         volumes: 
-            - front-vol:/var/www/html
-        ports: "30443:443"
+            - front-vol:/srv
+        ports: 
+            - "443:443"
         init: true
+        env_file: "srcs/.env"
         profiles:
-            - mandatory
-            - bonus
-        secrets:
-            - server-certificate
+             - mandatory
+             - bonus
+        #secrets:
+        #- server-certificate
         networks:
             - entrypoint-tier
-            - front-tier
+              #- front-tier
+              #configs:
+              #- nginx-config
 
-    mariadb:
-        container_name: mariadb
-        image: srcs/mariadb
-        build:
-            context: srcs/mariadb
-        restart: always
-        volumes: 
-            - db-vol:/var/www/html
-        ports: 3306
-        depends_on:
-            - nginx
-            - wordpress
-        init: true
-        profiles:
-            - mandatory
-            - bonus
-        networks:
-            - back-tier
+              #    mariadb:
+              #        container_name: mariadb
+              #        image: srcs/mariadb
+              #        build:
+              #            context: srcs/mariadb
+              #        restart: always
+              #        volumes: 
+              #            - back-vol:/srv/
+              #        ports: "3306:3306"
+              #        depends_on:
+              #            - nginx
+              #            - wordpress
+              #        init: true
+              #        profiles:
+              #            - mandatory
+              #            - bonus
+              #        networks:
+              #            - back-tier
 
-    wordpress:
-        container_name: wordpress
-        image: srcs/wordpress
-        build:
-            context: srcs/wordpress
-        restart: always
-        volumes: 
-            - front-vol:/var/www/html
-        ports: 9000
-        depends_on:
-            - nginx
-        init: true
-        profiles:
-            - mandatory
-        networks:
-            - front-tier
-            - back-tier
+              #    wordpress:
+              #        container_name: wordpress
+              #        image: srcs/wordpress
+              #        build:
+              #            context: srcs/wordpress
+              #        restart: always
+              #        volumes: 
+              #            - front-vol:/var/www/html
+              #        ports: "9000:9000"
+              #        depends_on:
+              #            - nginx
+              #        init: true
+              #        profiles:
+              #            - mandatory
+              #        networks:
+              #            - front-tier
+              #            - back-tier
 
-    env_file: .env
 
 networks:
     entrypoint-tier:
         attachable: true
-    front-tier:
-        attachable: true
-    back-tier:
-        attachable: true
+        #front-tier:
+        #attachable: true
+        #    back-tier:
+        #attachable: true
 
 volumes:
     front-vol:
-        - /home/$USER/data/front-vol
-    db-vol:
-        - /home/$USER/data/db-vol
+        name: front-vol
+        driver_opts:
+            type: "ext4"
+            o: bind
+            device: $HOME/data/front-vol
+        #mountpoint: /$HOME/data/front-vol
+        # - /home/$USER/data/front-vol
+    back-vol:
+        # - /home/$USER/data/back-vol
 
-configs:
+        #configs:
+        #nginx-config:
+        #- ./srcs/nginx/config
 
-secrets:
-    server-certificate:
-        file: srcs/nginx/config/server.cert
+        #secrets:
+        #server-certificate:
+        #file: srcs/nginx/config/server.cert
 
-profiles:
-    mandatory:
-    bonus:
+        #profiles:
+    #mandatory:
+        #    bonus:
