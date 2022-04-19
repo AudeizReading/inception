@@ -6,14 +6,20 @@ services:
             context: srcs/nginx
         restart: always
         volumes: 
-            - front-vol:/srv
+            - front-vol:/var/www/data
         ports: 
             - "443:443"
         init: true
+        environment:
+            SSL_KEY: ${SSL_KEY}
+            SSL_CSR: ${SSL_CSR}
+            SSL_CRT: ${SSL_CRT}
+            SSL_DER: ${SSL_KEY}
+            FQDN: ${FQDN}
         env_file: "srcs/.env"
         profiles:
-             - mandatory
-             - bonus
+           - mandatory
+           - bonus
         #secrets:
         #- server-certificate
         networks:
@@ -77,7 +83,7 @@ volumes:
             device: $HOME/data/front-vol
         #mountpoint: /$HOME/data/front-vol
         # - /home/$USER/data/front-vol
-    back-vol:
+        # back-vol:
         # - /home/$USER/data/back-vol
 
         #configs:
@@ -89,5 +95,5 @@ volumes:
         #file: srcs/nginx/config/server.cert
 
         #profiles:
-    #mandatory:
-        #    bonus:
+        #mandatory:
+        #bonus:
