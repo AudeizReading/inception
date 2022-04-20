@@ -4,29 +4,26 @@ services:
         image: nginx:inception
         build:
             context: srcs/nginx
+            args:
+                - SSL_KEY
+                - SSL_CSR
+                - SSL_CRT
+                - SSL_DER
+                - SSL_PATH="$SSL_PATH"
+                - OTHER_TEST
+                - FQDN
         restart: always
         volumes: 
             - front-vol:/var/www/data
         ports: 
             - "443:443"
         init: true
-        environment:
-            SSL_KEY: ${SSL_KEY}
-            SSL_CSR: ${SSL_CSR}
-            SSL_CRT: ${SSL_CRT}
-            SSL_DER: ${SSL_KEY}
-            FQDN: ${FQDN}
         env_file: "srcs/.env"
         profiles:
            - mandatory
            - bonus
-        #secrets:
-        #- server-certificate
         networks:
             - entrypoint-tier
-              #- front-tier
-              #configs:
-              #- nginx-config
 
               #    mariadb:
               #        container_name: mariadb
@@ -78,7 +75,7 @@ volumes:
     front-vol:
         name: front-vol
         driver_opts:
-            type: "ext4"
+            type: "nfs"
             o: bind
             device: $HOME/data/front-vol
         #mountpoint: /$HOME/data/front-vol
