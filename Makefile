@@ -9,7 +9,11 @@ ENV_FILE=			${SRCS}.env
 ENTRYPOINT_TIER=	inception_entrypoint-tier
 FRONT_TIER=			inception_front-tier
 BACK_TIER=			inception_back-tier
-VOLUMES=			${HOME}/data/
+ifdef DEBIAN
+	VOLUMES=		/home/alellouc/data
+else
+	VOLUMES=			${HOME}/data/
+endif
 VOL_CONT_FRONT=		/var/www/data
 VOL_CONT_BACK=		/bdd/
 VOL_HOTE_FRONT=		${VOLUMES}front-vol/
@@ -50,7 +54,7 @@ LS_IMG=				docker image ls -a
 
 UP=					docker compose --env-file ${ENV_FILE} --profile ${PROFILE} up -d
 DOWN=				docker compose down
-COMPOSE_BUILD=		docker compose build --no-cache ${SERVICE}
+COMPOSE_BUILD=		docker compose build ${SERVICE}
 #COMPOSE_BUILD=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} build ${SERVICE}
 #COMPOSE_RUN=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 COMPOSE_RUN=		docker compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
@@ -89,8 +93,8 @@ nginx:
 	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} PROFILE=mandatory
 
 nginx-intrm:
-	if ! [[ -a ${VOLUMES}front-vol ]]; then mkdir -p ${VOLUMES}front-vol; fi
-	export SSH_PATH="/var/ssl/alellouc.42.fr"
+	if [ ! -a ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
+#	export SSH_PATH="/var/ssl/alellouc.42.fr"
 	${COMPOSE_BUILD} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}
 #	${BUILD} && ${RUN} && ${START} && ${EXEC_DEBUG}

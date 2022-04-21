@@ -9,8 +9,7 @@ services:
                 - SSL_CSR
                 - SSL_CRT
                 - SSL_DER
-                - SSL_PATH="$SSL_PATH"
-                - OTHER_TEST
+                - SSL_PATH
                 - FQDN
         restart: always
         volumes: 
@@ -18,7 +17,14 @@ services:
         ports: 
             - "443:443"
         init: true
-        env_file: "srcs/.env"
+        env_file: ".env"
+        environment:
+            - SSL_KEY
+            - SSL_CSR
+            - SSL_CRT
+            - SSL_DER
+            - SSL_PATH
+            - FQDN
         profiles:
            - mandatory
            - bonus
