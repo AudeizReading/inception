@@ -50,8 +50,8 @@ LS_IMG=				docker image ls -a
 
 UP=					docker compose --env-file ${ENV_FILE} --profile ${PROFILE} up -d
 DOWN=				docker compose down
-COMPOSE_BUILD=		docker compose build --no-cache ${SERVICE}
-#COMPOSE_BUILD=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} build ${SERVICE}
+#COMPOSE_BUILD=		docker compose build --no-cache ${SERVICE}
+COMPOSE_BUILD=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} build ${SERVICE}
 #COMPOSE_RUN=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 COMPOSE_RUN=		docker compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 COMPOSE_START=		docker compose start ${SERVICE}
@@ -90,7 +90,6 @@ nginx:
 
 nginx-intrm:
 	if ! [[ -a ${VOLUMES}front-vol ]]; then mkdir -p ${VOLUMES}front-vol; fi
-	export SSH_PATH="/var/ssl/alellouc.42.fr"
 	${COMPOSE_BUILD} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}
 #	${BUILD} && ${RUN} && ${START} && ${EXEC_DEBUG}
