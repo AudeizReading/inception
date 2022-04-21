@@ -5,23 +5,19 @@
 ################################################################################
 NAME=				inception
 SRCS=				srcs/
-ENV_FILE=			${SRCS}.env
+ENV_FILE=			.env
 ENTRYPOINT_TIER=	inception_entrypoint-tier
 FRONT_TIER=			inception_front-tier
 BACK_TIER=			inception_back-tier
-ifdef DEBIAN
-	VOLUMES=		/home/alellouc/data
-else
-	VOLUMES=			${HOME}/data/
-endif
+VOLUMES=			${HOME}/data/
 VOL_CONT_FRONT=		/var/www/data
 VOL_CONT_BACK=		/bdd/
 VOL_HOTE_FRONT=		${VOLUMES}front-vol/
 VOL_HOTE_BACK=		${VOLUMES}back-vol/
-NGINX=				${SRCS}nginx/
-MARIADB=			${SRCS}mariadb/
-TOOLS=				${SRCS}${SERVICE}/tools/
-WP=					${SRCS}wordpress/
+NGINX=				./${SRCS}nginx/
+MARIADB=			./${SRCS}mariadb/
+TOOLS=				./${SRCS}${SERVICE}/tools/
+WP=					./${SRCS}wordpress/
 TAG=				${NAME}
 
 
@@ -41,32 +37,30 @@ ECHO=				printf
 #                                                                              #
 ################################################################################
 
-BUILD=				docker image build -t ${SERVICE} ./${SRCS}${SERVICE}/
+BUILD=				docker image build -t ${SERVICE} ./${SERVICE}/
 RMI=				docker image rm ${SERVICE}:${TAG}
 RUN=				docker container run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 START=				docker container start ${SERVICE} 
 STOP=				docker container stop ${SERVICE} 
 RMC=				docker container rm ${SERVICE}
 EXEC_DEBUG=			docker exec -it ${SERVICE} /bin/bash
-PRUNE=				docker system prune -a --volumes
-LS_CONT=			docker container ls -a
-LS_IMG=				docker image ls -a
 
-UP=					docker compose --env-file ${ENV_FILE} --profile ${PROFILE} up -d
-DOWN=				docker compose down
-#COMPOSE_BUILD=		docker compose build --no-cache ${SERVICE}
-COMPOSE_BUILD=		docker compose build ${SERVICE}
-#COMPOSE_BUILD=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} build ${SERVICE}
-#COMPOSE_RUN=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
-COMPOSE_RUN=		docker compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
-COMPOSE_START=		docker compose start ${SERVICE}
-COMPOSE_STOP=		docker compose stop ${SERVICE}
-COMPOSE_RMC=		docker compose rm -v ${SERVICE}
-COMPOSE_EXEC=		docker compose exec -it ${SERVICE} /bin/bash
-#COMPOSE_EXEC=		docker compose --env-file ${ENV_FILE} exec -it ${SERVICE} /bin/bash
+UP=					docker-compose up -d
+DOWN=				docker-compose down
+COMPOSE_BUILD=		docker-compose build ${SERVICE}
+COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} --name=${SERVICE} -d ${SERVICE}
+#COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
+COMPOSE_START=		docker-compose start ${SERVICE}
+COMPOSE_STOP=		docker-compose stop ${SERVICE}
+COMPOSE_RMC=		docker-compose rm -v ${SERVICE}
+COMPOSE_EXEC=		docker-compose exec -it ${SERVICE} /bin/bash
+
 CLEAN_NETWORK=		docker network rm ${NETWORK}
 CLEAN_VOL_FRONT=	docker volume rm front-vol
 CLEAN_VOL_BACK=		docker volume rm back-vol
+LS_CONT=			docker container ls -a
+LS_IMG=				docker image ls -a
+PRUNE=				docker system prune -a --volumes
 
 ################################################################################
 #                                                                              #
@@ -74,28 +68,18 @@ CLEAN_VOL_BACK=		docker volume rm back-vol
 #                                                                              #
 ################################################################################
 
-test: ${NAME}
-	make docker-fclean
-
-mandatory:
-	make mandatory-intrm PROFILE=mandatory
-
-mandatory-intrm:
-	${UP}
-
-mandatory-clean:
-	${DOWN} && ${CLEAN_VOL_FRONT}
 
 ${NAME}: nginx mariadb wordpress
 
 .PHONY: nginx nginx-intrm nginx-clean nginx-clean-intrm
 
 nginx:
-	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} PROFILE=mandatory
+	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 
 nginx-intrm:
-	if ! [[ -a ${VOLUMES}front-vol ]]; then mkdir -p ${VOLUMES}front-vol; fi
-	${COMPOSE_BUILD} && ${COMPOSE_RUN}
+#	if [[ ! -a ${VOLUMES}front-vol ]]; then mkdir -p ${VOLUMES}front-vol; fi
+	cd ${SRCS} && ${COMPOSE_BUILD} 
+	cd ${SRCS} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}
 #	${BUILD} && ${RUN} && ${START} && ${EXEC_DEBUG}
 
@@ -103,7 +87,8 @@ nginx-clean:
 	make nginx-clean-intrm SERVICE=nginx NETWORK=${ENTRYPOINT_TIER}
 
 nginx-clean-intrm:
-	${COMPOSE_STOP} && ${COMPOSE_RMC} && ${RMI}
+	cd ${SRCS} && ${COMPOSE_STOP} && ${COMPOSE_RMC}
+	${RMI} 
 	${CLEAN_VOL_FRONT}
 	${CLEAN_NETWORK}
 #	${STOP} && ${RMC} && ${RMI}
