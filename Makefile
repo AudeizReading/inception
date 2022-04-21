@@ -9,7 +9,11 @@ ENV_FILE=			${SRCS}.env
 ENTRYPOINT_TIER=	inception_entrypoint-tier
 FRONT_TIER=			inception_front-tier
 BACK_TIER=			inception_back-tier
-VOLUMES=			${HOME}/data/
+ifdef DEBIAN
+	VOLUMES=		/home/alellouc/data
+else
+	VOLUMES=			${HOME}/data/
+endif
 VOL_CONT_FRONT=		/var/www/data
 VOL_CONT_BACK=		/bdd/
 VOL_HOTE_FRONT=		${VOLUMES}front-vol/
@@ -51,7 +55,8 @@ LS_IMG=				docker image ls -a
 UP=					docker compose --env-file ${ENV_FILE} --profile ${PROFILE} up -d
 DOWN=				docker compose down
 #COMPOSE_BUILD=		docker compose build --no-cache ${SERVICE}
-COMPOSE_BUILD=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} build ${SERVICE}
+COMPOSE_BUILD=		docker compose build ${SERVICE}
+#COMPOSE_BUILD=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} build ${SERVICE}
 #COMPOSE_RUN=		docker compose --env-file ${ENV_FILE} --profile ${PROFILE} run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 COMPOSE_RUN=		docker compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 COMPOSE_START=		docker compose start ${SERVICE}
