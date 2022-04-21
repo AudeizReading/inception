@@ -69,6 +69,8 @@ PRUNE=				docker system prune -a --volumes
 ################################################################################
 
 
+.PHONY: ${NAME}
+
 ${NAME}: nginx mariadb wordpress
 
 .PHONY: nginx nginx-intrm nginx-clean nginx-clean-intrm
@@ -77,7 +79,7 @@ nginx:
 	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 
 nginx-intrm:
-#	if [[ ! -a ${VOLUMES}front-vol ]]; then mkdir -p ${VOLUMES}front-vol; fi
+	if [ ! -a ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}
@@ -87,7 +89,8 @@ nginx-clean:
 	make nginx-clean-intrm SERVICE=nginx NETWORK=${ENTRYPOINT_TIER}
 
 nginx-clean-intrm:
-	cd ${SRCS} && ${COMPOSE_STOP} && ${COMPOSE_RMC}
+	cd ${SRCS} && ${COMPOSE_STOP} 
+	cd ${SRCS} && ${COMPOSE_RMC}
 	${RMI} 
 	${CLEAN_VOL_FRONT}
 	${CLEAN_NETWORK}

@@ -16,8 +16,9 @@ RUN		set -x \
 		&& apt-get install -y nginx-full ca-certificates openssl curl lynx \
 		&& ln -sf /dev/stdout /var/log/nginx/access.log \
 		&& ln -sf /dev/stderr /var/log/nginx/error.log 
-RUN		mkdir -p /var/ssl/alellouc.42.fr  \
-		&& openssl genrsa -out /var/ssl/alellouc.42.fr/inception.key 2048 \
+#COPY	/conf/openssl.cnf /usr/lib/ssl/openssl.cnf
+RUN		mkdir -p $SSL_PATH  \
+		&& openssl genrsa -out $SSL_KEY 4096 \
 		&& openssl req -nodes -new -key $SSL_KEY -subj "/CN=$FQDN/" -out $SSL_CSR \
 		&& openssl x509 -req -days 3650 -in $SSL_CSR -signkey $SSL_KEY -out $SSL_CRT\
 		&& openssl x509 -in $SSL_CRT -out $SSL_DER -outform DER
