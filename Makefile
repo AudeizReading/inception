@@ -79,7 +79,7 @@ nginx:
 	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 
 nginx-intrm:
-	if [ ! -a ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
+	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}
@@ -89,11 +89,12 @@ nginx-clean:
 	make nginx-clean-intrm SERVICE=nginx NETWORK=${ENTRYPOINT_TIER}
 
 nginx-clean-intrm:
-	cd ${SRCS} && ${COMPOSE_STOP} 
-	cd ${SRCS} && ${COMPOSE_RMC}
-	${RMI} 
+	cd ${SRCS} && ${DOWN} 
+#	cd ${SRCS} && ${COMPOSE_STOP} 
+#	cd ${SRCS} && ${COMPOSE_RMC}
 	${CLEAN_VOL_FRONT}
-	${CLEAN_NETWORK}
+#	${CLEAN_NETWORK}
+	${RMI} 
 #	${STOP} && ${RMC} && ${RMI}
 #	if [[ -a ${VOLUMES}front-vol ]]; then rm -rf ${VOLUMES}front-vol; fi
 

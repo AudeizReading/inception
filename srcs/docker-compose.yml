@@ -11,6 +11,7 @@ services:
                 - SSL_DER
                 - SSL_PATH
                 - FQDN
+                - MAINTAINER
         restart: always
         volumes: 
             - front-vol:/var/www/data
@@ -18,13 +19,6 @@ services:
             - "443:443"
         init: true
         env_file: ".env"
-        environment:
-            - SSL_KEY
-            - SSL_CSR
-            - SSL_CRT
-            - SSL_DER
-            - SSL_PATH
-            - FQDN
         profiles:
            - mandatory
            - bonus

@@ -6,9 +6,12 @@ ARG		SSL_CRT
 ARG		SSL_DER
 ARG		SSL_PATH
 ARG		FQDN
-LABEL	maintainer alellouc
+ARG		MAINTAINER
+LABEL	maintainer $MAINTAINER
 VOLUME	/var/www/data
-ENV		SSL_PATH="$SSL_PATH" SSL_KEY="$SSL_KEY" SSL_CSR="$SSL_CSR" SSL_CRT="$SSL_CRT" SSL_DER="$SSL_DER" FQDN="$FQDN"
+#ENV		SSL_PATH="$SSL_PATH" SSL_KEY="$SSL_KEY" SSL_CSR="$SSL_CSR" \
+#		SSL_CRT="$SSL_CRT" SSL_DER="$SSL_DER" FQDN="$FQDN" \
+#		MAINTAINER="$MAINTAINER"
 RUN		set -x \
 		&& addgroup --system --gid 101 nginx \
 		&& adduser --system --disabled-login --ingroup nginx --no-create-home --home /nonexistent --gecos "nginx user" --shell /bin/false --uid 101 nginx \
