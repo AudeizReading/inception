@@ -43,6 +43,9 @@ services:
            - bonus
         networks:
             - entrypoint-tier
+            - front-tier
+        #depends_on:
+            #- wordpress
 
               #    mariadb:
               #        container_name: mariadb
@@ -63,30 +66,29 @@ services:
               #        networks:
               #            - back-tier
 
-              #    wordpress:
-              #        container_name: wordpress
-              #        image: srcs/wordpress
-              #        build:
-              #            context: srcs/wordpress
-              #        restart: always
-              #        volumes: 
-              #            - front-vol:/var/www/html
-              #        ports: "9000:9000"
-              #        depends_on:
-              #            - nginx
-              #        init: true
-              #        profiles:
-              #            - mandatory
-              #        networks:
-              #            - front-tier
-              #            - back-tier
+    wordpress:
+        container_name: wordpress
+        image: wordpress:inception
+        build:
+            context: wordpress
+        restart: always
+        volumes: 
+            - front-vol:/var/www/html
+        ports: 
+            - "9000:9000"
+        profiles:
+            - mandatory
+        networks:
+            - front-tier
+            #- back-tier
+        env_file: ".env"
 
 
 networks:
     entrypoint-tier:
         attachable: true
-        #front-tier:
-        #attachable: true
+    front-tier:
+        attachable: true
         #    back-tier:
         #attachable: true
 

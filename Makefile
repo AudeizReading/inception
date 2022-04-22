@@ -76,6 +76,7 @@ ${NAME}: nginx mariadb wordpress
 .PHONY: nginx nginx-intrm nginx-clean nginx-clean-intrm
 
 nginx:
+#	make wordpress && 
 	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 
 nginx-intrm:
@@ -90,8 +91,6 @@ nginx-clean:
 
 nginx-clean-intrm:
 	cd ${SRCS} && ${DOWN} 
-#	cd ${SRCS} && ${COMPOSE_STOP} 
-#	cd ${SRCS} && ${COMPOSE_RMC}
 	${CLEAN_VOL_FRONT}
 #	${CLEAN_NETWORK}
 	${RMI} 
@@ -121,15 +120,17 @@ wordpress:
 	make wordpress-intrm SERVICE=wordpress PORT_CONTAINER=9000 PORT_HOTE=9000 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT}
 
 wordpress-intrm:
-	if ! [[ -a ${VOLUMES}front-vol ]]; then mkdir -p ${VOLUMES}front-vol; fi
-	${BUILD} && ${RUN}
-	echo ${TOOLS}; echo ${SERVICE} ${PORT_HOTE} ${PORT_CONTAINER} ${VOLUMES}
+	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
+	cd ${SRCS} && ${COMPOSE_BUILD} 
+	cd ${SRCS} && ${COMPOSE_RUN}
 
 wordpress-clean:
 	make wordpress-clean-intrm SERVICE=wordpress
 
 wordpress-clean-intrm:
-	${STOP} && ${RMC} && ${RMI}
+	cd ${SRCS} && ${DOWN} 
+	${CLEAN_VOL_FRONT}
+	${RMI} 
 #	if [[ -a ${VOLUMES}front-vol ]]; then rm -rf ${VOLUMES}front-vol; fi
 
 .PHONY: ${NAME} docker-fclean check clean
