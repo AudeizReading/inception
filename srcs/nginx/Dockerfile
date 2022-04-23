@@ -40,10 +40,13 @@ RUN		addgroup --system --gid 101 nginx \
 		&& adduser --system --disabled-login --ingroup nginx --no-create-home \
 			--home /nonexistent --gecos "nginx user" --shell /bin/false --uid 101 nginx \
 		&& apt-get update -y && apt-get upgrade -y \
-		&& apt-get install -y --install-suggests -q nginx-full ca-certificates openssl \
+		&& apt-get install -y -q nginx-full ca-certificates openssl \
 		&& ln -sf /dev/stdout /var/log/nginx/access.log \
 		&& ln -sf /dev/stderr /var/log/nginx/error.log
 
+#COPY	/tools/gen-ssl-certs.sh /tmp/gen-ssl-certs.sh
+#COPY	/conf/ca-ssl.cnf /tmp/ca-ssl.cnf
+#RUN		cd /tmp && ./gen-ssl-certs.sh $SSL_PATH ./ca-ssl.cnf $FQDN && rm -rf ./gen-ssl-certs.sh
 # Setting an authority for signing certs, but seems it does not work with Google
 # Chrome
 # Works with Safari but need main host password as admin
@@ -56,7 +59,7 @@ RUN		openssl genrsa -out $CA_KEY 4096 \
 		&& openssl req -new -key $CA_KEY -out $CA_CSR -sha256 -batch \ 
 		-subj "/C=$CA_C/ST=$CA_ST/L=$CA_L/O=$CA_O/OU=$CA_OU/emailAddress=$CA_EMAIL/CN=$CA_CN/" \
 		&& openssl x509 -req -days 3650 -signkey $CA_KEY -in $CA_CSR -out $CA_CRT \ 
-		&& rm -rf CA_CSR && chmod 400 $CA_KEY
+		&& rm -rf $CA_CSR && chmod 400 $CA_KEY
 
 # Getting an ssl certificate signed by our own CA (we do not have a real IP for
 # registering our fqdn to a authentic CA)
