@@ -6,30 +6,7 @@ services:
             context: ./nginx
             args:
                 - MAINTAINER
-                - CA_PATH
-                - CA_KEY_PATH
-                - CA_CRT_PATH
-                - CA_NEWCRT_PATH
-                - CA_CONFIG_PATH
-                - CA_CONFIG
-                - CA_SERIAL
-                - CA_INDEX
-                - CA_KEY
-                - CA_CSR
-                - CA_CRT
-                - CA_C
-                - CA_ST
-                - CA_L
-                - CA_O
-                - CA_OU
-                - CA_CN
-                - CA_EMAIL
                 - SSL_PATH
-                - SSL_KEY
-                - SSL_CSR
-                - SSL_CRT
-                - SSL_DER
-                - SSL_OU
                 - FQDN
         restart: always
         volumes: 
@@ -71,6 +48,8 @@ services:
         image: wordpress:inception
         build:
             context: wordpress
+            args:
+                - MAINTAINER
         restart: always
         volumes: 
             - front-vol:/var/www/html
