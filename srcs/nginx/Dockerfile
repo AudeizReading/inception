@@ -30,9 +30,12 @@ RUN		cd /tmp && ./gen-ssl-certs.sh $SSL_PATH ./ca-ssl.cnf $FQDN && rm -rf ./gen-
 
 # Copying config files needed for the well nginx running
 # Intercepts 443 traffic
-COPY	/conf/html.conf /etc/nginx/conf.d/html.conf
 COPY	/conf/nginx.conf /etc/nginx/nginx.conf
+COPY	/conf/html.conf /tmp/html.conf
 COPY	/conf/index.html /var/www/html/index.html
+
+RUN		mkdir -p /var/www/data/nginx/conf/conf.d \
+		&& mv /tmp/html.conf /var/www/data/nginx/conf/conf.d/html.conf
 
 ENTRYPOINT	["nginx"]
 CMD			["-g", "daemon off;"]

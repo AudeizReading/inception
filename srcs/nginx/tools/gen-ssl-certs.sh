@@ -74,19 +74,3 @@ then
 		"/C=${CA_C}/ST=${CA_ST}/O=${CA_O}/CN=${FQDN}/"
 	openssl ca -config ${CA_CONFIG} -batch -in ${SSL_CSR} -out ${SSL_CRT}
 fi
-
-#RUN		mkdir -p $CA_PATH $CA_KEY_PATH $CA_CRT_PATH $CA_NEWCRT_PATH $CA_CONFIG_PATH $SSL_PATH \
-#		&& cd $CA_PATH && touch $CA_INDEX && echo '01' > $CA_SERIAL
-#
-#COPY	/conf/ca-ssl.cnf $CA_CONFIG
-
-#openssl genrsa -out $CA_KEY 4096 \
-#		&& openssl req -new -key $CA_KEY -out $CA_CSR -sha256 -batch \ 
-#		-subj "/C=$CA_C/ST=$CA_ST/L=$CA_L/O=$CA_O/OU=$CA_OU/emailAddress=$CA_EMAIL/CN=$CA_CN/" \
-#		&& openssl x509 -req -days 3650 -signkey $CA_KEY -in $CA_CSR -out $CA_CRT \ 
-#		&& rm -rf CA_CSR && chmod 400 $CA_KEY
-
-#openssl genrsa -out $SSL_KEY 4096 \
-#		&& openssl req -nodes -new -key $SSL_KEY -batch -subj "/C=$CA_C/ST=$CA_ST/O=$CA_O/CN=$FQDN/" -out $SSL_CSR \
-#		&& openssl ca -config $CA_CONFIG -batch -in $SSL_CSR -out $SSL_CRT
-

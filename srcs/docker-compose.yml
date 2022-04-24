@@ -52,7 +52,7 @@ services:
                 - MAINTAINER
         restart: always
         volumes: 
-            - front-vol:/var/www/html
+            - front-vol:/var/www/data
         ports: 
             - "9000:9000"
         profiles:
