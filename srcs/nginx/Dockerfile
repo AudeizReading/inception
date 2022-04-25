@@ -31,12 +31,20 @@ RUN		cd /tmp && ./gen-ssl-certs.sh $SSL_PATH ./ca-ssl.cnf $FQDN && rm -rf ./gen-
 
 # Copying config files needed for the well nginx running
 # Intercepts 443 traffic
-COPY	/conf/nginx.conf /etc/nginx/nginx.conf
-COPY	/conf/html.conf /tmp/html.conf
-COPY	/conf/index.php /var/www/html/index.php
+COPY	/conf/nginx.conf			/etc/nginx/nginx.conf
+COPY	/conf/alellouc.42.fr.conf	/etc/nginx/conf.d/alellouc.42.fr.conf
 
-RUN		mkdir -p /var/www/data/nginx/conf/conf.d \
-		&& mv /tmp/html.conf /var/www/data/nginx/conf/conf.d/html.conf
+#RUN		mkdir -p /var/www/alellouc.42.fr/cache 
+COPY	--chown=www-data:www-data	/conf/index.php				/var/www/alellouc.42.fr/index.php
+COPY	--chown=www-data:www-data	/conf/index.html /var/www/alellouc.42.fr/index.html
+
+
+#RUN	
+#COPY	/conf/html.conf /tmp/html.conf
+#COPY	/conf/index.php /var/www/html/index.php
+
+#RUN		mkdir -p /var/www/data/nginx/conf/conf.d \
+		#&& mv /tmp/html.conf /var/www/data/nginx/conf/conf.d/html.conf
 
 # Testing php
 RUN		apt-get update -y && apt-get upgrade -y \
@@ -66,15 +74,14 @@ RUN		apt-get update -y && apt-get upgrade -y \
 		php8.1-pgsql \
 		php8.1-opcache \
 		php8.1-soap \
-		php8.1-cgi
-COPY	/conf/test/php.ini /etc/php/8.1/fpm/php.ini
-COPY	/conf/test/www.conf /etc/php/8.1/fpm/pool.d/www.conf
-#COPY	/conf/test/nginx-php-fpm.conf /tmp/nginx-php-fpm.conf
+		php8.1-cgi \
+		&& mkdir -p /var/run/php
+#COPY	/conf/test/php.ini /etc/php/8.1/fpm/php.ini
+#COPY	/conf/test/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 #RUN		mv /tmp/nginx-php-fpm.conf /var/www/data/nginx/conf/conf.d/nginx-php-fpm.conf
 # fin test php
 
-RUN		/etc/init.d/php8.1-fpm restart
-RUN		php8.1-fpm -F
+#RUN		php-fpm8.1 -F
 ENTRYPOINT	["nginx"]
 CMD			["-g", "daemon off;"]
 

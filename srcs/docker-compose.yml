@@ -10,7 +10,7 @@ services:
                 - FQDN
         restart: always
         volumes: 
-            - front-vol:/var/www/data
+            - front-vol:/var/www
         ports: 
             - "443:443"
         init: true
@@ -52,7 +52,7 @@ services:
                 - MAINTAINER
         restart: always
         volumes: 
-            - front-vol:/var/www/data
+            - front-vol:/var/www
         ports: 
             - "9000:9000"
         profiles:
