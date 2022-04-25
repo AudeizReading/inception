@@ -14,13 +14,14 @@ LABEL	maintainer $MAINTAINER
 
 # Downloading nginx packages et set config for nginx user
 # Forwarding stdout and stderr to nginx's corresponding logfile
-RUN		addgroup --system --gid 101 nginx \
-		&& adduser --system --disabled-login --ingroup nginx --no-create-home \
-			--home /nonexistent --gecos "nginx user" --shell /bin/false --uid 101 nginx \
-		&& apt-get update -y && apt-get upgrade -y \
-		&& apt-get install -y -q nginx-full ca-certificates openssl \
-		&& ln -sf /dev/stdout /var/log/nginx/access.log \
-		&& ln -sf /dev/stderr /var/log/nginx/error.log
+#RUN		addgroup --system --gid 101 nginx \
+#		&& adduser --system --disabled-login --ingroup nginx --no-create-home \
+#			--home /nonexistent --gecos "nginx user" --shell /bin/false --uid 101 nginx \
+#		&& apt-get update -y && apt-get upgrade -y \
+#		&& apt-get install -y -q nginx-full ca-certificates openssl \
+#		&& ln -sf /dev/stdout /var/log/nginx/access.log \
+RUN		apt-get update -y && apt-get upgrade -y \
+		&& apt-get install -y -q nginx-full ca-certificates openssl
 
 # Copying script and config for generating ssl key. Run the script before
 # deleting it (no more need)
@@ -32,11 +33,48 @@ RUN		cd /tmp && ./gen-ssl-certs.sh $SSL_PATH ./ca-ssl.cnf $FQDN && rm -rf ./gen-
 # Intercepts 443 traffic
 COPY	/conf/nginx.conf /etc/nginx/nginx.conf
 COPY	/conf/html.conf /tmp/html.conf
-COPY	/conf/index.html /var/www/html/index.html
+COPY	/conf/index.php /var/www/html/index.php
 
 RUN		mkdir -p /var/www/data/nginx/conf/conf.d \
 		&& mv /tmp/html.conf /var/www/data/nginx/conf/conf.d/html.conf
 
+# Testing php
+RUN		apt-get update -y && apt-get upgrade -y \
+		&& apt-get install -y curl apt-transport-https lsb-release \
+		ca-certificates \
+		&& curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg \
+		https://packages.sury.org/php/apt.gpg \
+		&& sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
+		&& apt-get update -y \
+		&& apt-get install -y php8.1 \
+		php8.1-bcmath \
+		php8.1-fpm \
+		php8.1-xml \
+		php8.1-mysql \
+		php8.1-common \
+		php8.1-snmp \
+		php-json \
+		php8.1-intl \
+		php8.1-zip \
+		php8.1-intl \
+		php8.1-ldap \
+		php8.1-gd \
+		php8.1-cli \
+		php8.1-bz \
+		php8.1-curl \
+		php8.1-mbstring \
+		php8.1-pgsql \
+		php8.1-opcache \
+		php8.1-soap \
+		php8.1-cgi
+COPY	/conf/test/php.ini /etc/php/8.1/fpm/php.ini
+COPY	/conf/test/www.conf /etc/php/8.1/fpm/pool.d/www.conf
+#COPY	/conf/test/nginx-php-fpm.conf /tmp/nginx-php-fpm.conf
+#RUN		mv /tmp/nginx-php-fpm.conf /var/www/data/nginx/conf/conf.d/nginx-php-fpm.conf
+# fin test php
+
+RUN		/etc/init.d/php8.1-fpm restart
+RUN		php8.1-fpm -F
 ENTRYPOINT	["nginx"]
 CMD			["-g", "daemon off;"]
 

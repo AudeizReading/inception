@@ -123,6 +123,7 @@ wordpress-intrm:
 	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
+	cd ${SRCS} && ${COMPOSE_EXEC}
 
 wordpress-clean:
 	make wordpress-clean-intrm SERVICE=wordpress

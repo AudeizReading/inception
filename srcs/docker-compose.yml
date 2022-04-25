@@ -58,6 +58,7 @@ services:
         profiles:
             - mandatory
         networks:
+            #- entrypoint-tier
             - front-tier
             #- back-tier
         env_file: ".env"

@@ -39,24 +39,15 @@ RUN		apt-get update -y && apt-get upgrade -y \
 		php8.1-opcache \
 		php8.1-soap \
 		php8.1-cgi
-#COPY	/etc/php8.1/fpm/pool.d/www.conf /var/www/html/www.conf
-	#	&& apt-get install -y curl make gcc autoconf dpkg-dev pkg-config\
-	#	g++ gcc libc-dev re2c gnupg dirmngr\
-	#	libargon2-dev \
-	#	libcurl4-openssl-dev \
-	#	libonig-dev \
-	#	libreadline-dev \
-	#	libsodium-dev \
-	#	libsqlite3-dev \
-	#	libssl-dev \
-	#	libxml2-dev \
-	#	zlib1g-dev \
-	#	&& cd /usr/src \
-	#	&& curl -o "./php-8.1.5.tar.gz" https://www.php.net/distributions/php-8.1.5.tar.gz \ 
-	#	&& tar -xzvf php-8.1.5.tar.gz \
-	#	&& cd ./php-8.1.5 \
-	#	&& ./configure --enable-fpm --with-mysqli \
-	#	&& make \
-	#	&& make install
+COPY	/conf/php.ini /etc/php/8.1/fpm/php.ini
+COPY	/conf/php-fpm.conf /etc/php/8.1/fpm/php-fpm.conf
+COPY	/conf/www.conf /etc/php/8.1/fpm/pool.d/www.conf
+COPY	/conf/nginx-php-fpm.conf /tmp/nginx-php-fpm.conf
+RUN		mkdir -p /var/www/data/nginx/conf/conf.d \
+		&& mv /tmp/nginx-php-fpm.conf /var/www/data/nginx/conf/conf.d/nginx-php-fpm.conf
+#CMD		["php", "-a"]
+#CMD		["php-fpm8.1", "-F"]
+#RUN		["systemctl", "start", "php8.1-fpm"]
+#RUN		["systemctl", "status", "php8.1-fpm"]
+#RUN		["/etc/init.d/php8.1-fpm", "status"]
 CMD		["/bin/sh", "-c", "/bin/sh"]
-#CMD		["php-fpm", "-f"]
