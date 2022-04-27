@@ -47,6 +47,7 @@ EXEC_DEBUG=			docker exec -it ${SERVICE} /bin/bash
 
 UP=					docker-compose up -d
 DOWN=				docker-compose down
+#COMPOSE_BUILD=		docker-compose build --build-arg USER_ID=$(id -u) --build-arg GRP_ID=$(id -g) ${SERVICE}
 COMPOSE_BUILD=		docker-compose build ${SERVICE}
 #COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} --name=${SERVICE} -d ${SERVICE}
 COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -d ${SERVICE}
@@ -80,7 +81,6 @@ nginx:
 	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 
 nginx-intrm:
-	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol && chown ${USER}:${USER} -R ; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}

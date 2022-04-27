@@ -11,6 +11,9 @@ services:
         restart: always
         volumes: 
             - front-vol:/var/www
+            - front-vol:/var/www/alellouc.42.fr
+            - front-vol:/var/www/alellouc.42.fr/cache
+            - front-vol:/var/www/alellouc.42.fr/wp
         ports: 
             - "443:443"
         init: true
@@ -20,9 +23,8 @@ services:
            - bonus
         networks:
             - entrypoint-tier
-            - front-tier
-        #depends_on:
-            #- wordpress
+        depends_on:
+            - wordpress
 
               #    mariadb:
               #        container_name: mariadb
@@ -53,21 +55,21 @@ services:
         restart: always
         volumes: 
             - front-vol:/var/www
+            - front-vol:/var/www/alellouc.42.fr
+            - front-vol:/var/www/alellouc.42.fr/cache
+            - front-vol:/var/www/alellouc.42.fr/wp
         ports: 
             - "9000:9000"
         profiles:
             - mandatory
         networks:
-            #- entrypoint-tier
-            - front-tier
+            - entrypoint-tier
             #- back-tier
         env_file: ".env"
 
 
 networks:
     entrypoint-tier:
-        attachable: true
-    front-tier:
         attachable: true
         #    back-tier:
         #attachable: true
@@ -79,19 +81,3 @@ volumes:
             type: "nfs"
             o: bind
             device: $HOME/data/front-vol
-        #mountpoint: /$HOME/data/front-vol
-        # - /home/$USER/data/front-vol
-        # back-vol:
-        # - /home/$USER/data/back-vol
-
-        #configs:
-        #nginx-config:
-        #- ./srcs/nginx/config
-
-        #secrets:
-        #server-certificate:
-        #file: srcs/nginx/config/server.cert
-
-        #profiles:
-        #mandatory:
-        #bonus:
