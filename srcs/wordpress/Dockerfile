@@ -51,7 +51,8 @@ COPY	/conf/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 WORKDIR	/var/www/alellouc.42.fr
 RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
 		https://fr.wordpress.org/latest-fr_FR.tar.gz \
-		&& tar -xvzf latest-fr_FR.tar.gz 
+		&& tar -xvzf latest-fr_FR.tar.gz \
+		&& rm -rf latest-fr_FR.tar.gz
 #RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wp
 # Only for testing php working
 COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
