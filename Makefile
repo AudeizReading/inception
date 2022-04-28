@@ -47,10 +47,10 @@ EXEC_DEBUG=			docker exec -it ${SERVICE} /bin/bash
 
 UP=					docker-compose up -d
 DOWN=				docker-compose down
-#COMPOSE_BUILD=		docker-compose build --build-arg USER_ID=$(id -u) --build-arg GRP_ID=$(id -g) ${SERVICE}
-COMPOSE_BUILD=		docker-compose build ${SERVICE}
-#COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} --name=${SERVICE} -d ${SERVICE}
-COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -d ${SERVICE}
+COMPOSE_BUILD=		docker-compose --verbose build ${SERVICE}
+#COMPOSE_BUILD=		docker-compose build ${SERVICE}
+COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} --name=${SERVICE} -d ${SERVICE}
+#COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -d ${SERVICE}
 COMPOSE_START=		docker-compose start ${SERVICE}
 COMPOSE_STOP=		docker-compose stop ${SERVICE}
 COMPOSE_RMC=		docker-compose rm -v ${SERVICE}
@@ -61,6 +61,8 @@ CLEAN_VOL_FRONT=	docker volume rm front-vol
 CLEAN_VOL_BACK=		docker volume rm back-vol
 LS_CONT=			docker container ls -a
 LS_IMG=				docker image ls -a
+LS_VOL=				docker volume ls
+LS_NET=				docker network ls
 PRUNE=				docker system prune -a --volumes
 
 ################################################################################
@@ -77,14 +79,17 @@ ${NAME}: nginx mariadb wordpress
 .PHONY: nginx nginx-intrm nginx-clean nginx-clean-intrm
 
 nginx:
-#	make wordpress && 
+#	make wordpress  
+#	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 	make nginx-intrm SERVICE=nginx PORT_CONTAINER=443 PORT_HOTE=443 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT} 
 
 nginx-intrm:
+# if the volume does not yet exist, we must create it otherwise docker triggers
+# an error
+	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}
-#	${BUILD} && ${RUN} && ${START} && ${EXEC_DEBUG}
 
 nginx-clean:
 	make nginx-clean-intrm SERVICE=nginx NETWORK=${ENTRYPOINT_TIER}
@@ -94,8 +99,6 @@ nginx-clean-intrm:
 	${CLEAN_VOL_FRONT}
 #	${CLEAN_NETWORK}
 	${RMI} 
-#	${STOP} && ${RMC} && ${RMI}
-#	if [[ -a ${VOLUMES}front-vol ]]; then rm -rf ${VOLUMES}front-vol; fi
 
 .PHONY: mariadb mariadb-intrm mariadb-clean mariadb-clean-intrm
 
@@ -103,7 +106,7 @@ mariadb:
 	make mariadb-intrm SERVICE=mariadb PORT_CONTAINER=3306 PORT_HOTE=3306 VOL_HOTE=${VOL_HOTE_BACK} VOL_CONT=${VOL_CONT_BACK}
 
 mariadb-intrm:
-	if ! [[ -a ${VOLUMES}back-vol ]]; then mkdir -p ${VOLUMES}back-vol; fi
+	if ! [[ -a ${VOLUMES}back-vol ]]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
 	${BUILD} && ${RUN}
 	echo ${TOOLS}; echo ${SERVICE} ${PORT_HOTE} ${PORT_CONTAINER} ${VOLUMES}
 
@@ -120,17 +123,17 @@ wordpress:
 	make wordpress-intrm SERVICE=wordpress PORT_CONTAINER=9000 PORT_HOTE=9000 VOL_HOTE=${VOL_HOTE_FRONT} VOL_CONT=${VOL_CONT_FRONT}
 
 wordpress-intrm:
-	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
+#	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -p ${VOLUMES}front-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
-	cd ${SRCS} && ${COMPOSE_EXEC}
+#	cd ${SRCS} && ${COMPOSE_EXEC}
 
 wordpress-clean:
 	make wordpress-clean-intrm SERVICE=wordpress
 
 wordpress-clean-intrm:
 	cd ${SRCS} && ${DOWN} 
-	${CLEAN_VOL_FRONT}
+#	${CLEAN_VOL_FRONT}
 	${RMI} 
 #	if [[ -a ${VOLUMES}front-vol ]]; then rm -rf ${VOLUMES}front-vol; fi
 
@@ -139,6 +142,8 @@ wordpress-clean-intrm:
 check:
 	${LS_CONT}
 	${LS_IMG}
+	${LS_VOL}
+	${LS_NET}
 
 docker-fclean: nginx-clean mariadb-clean wordpress-clean
 	${PRUNE}
