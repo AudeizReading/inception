@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
     nginx:
         container_name: nginx
@@ -12,39 +13,30 @@ services:
         restart: always
         volumes: 
         - front-vol:/var/www
-          #        - front-vol:/var/www/alellouc.42.fr
-          #        - front-vol:/var/www/alellouc.42.fr/cache
-          #        - front-vol:/var/www/alellouc.42.fr/wp
         ports: 
             - "443:443"
         init: true
         env_file: ".env"
-        profiles:
-           - mandatory
-           - bonus
         networks:
             - entrypoint-tier
         depends_on:
             - wordpress
 
-              #    mariadb:
-              #        container_name: mariadb
-              #        image: srcs/mariadb
-              #        build:
-              #            context: srcs/mariadb
-              #        restart: always
-              #        volumes: 
-              #            - back-vol:/srv/
-              #        ports: "3306:3306"
-              #        depends_on:
-              #            - nginx
-              #            - wordpress
-              #        init: true
-              #        profiles:
-              #            - mandatory
-              #            - bonus
-              #        networks:
-              #            - back-tier
+    mariadb:
+        container_name: mariadb
+        image: mariadb:inception
+        build:
+            context: mariadb
+            args:
+                - MAINTAINER
+        restart: always
+        env_file: ".env"
+        volumes: 
+            - back-vol:/srv/
+        ports: 
+            - "3306:3306"
+        networks:
+            - entrypoint-tier
 
     wordpress:
         container_name: wordpress
@@ -54,26 +46,20 @@ services:
             args:
                 - MAINTAINER
         restart: always
+        depends_on:
+        - mariadb
         volumes: 
-        - front-vol:/var/www
-          #        - front-vol:/var/www/alellouc.42.fr
-          #        - front-vol:/var/www/alellouc.42.fr/cache
-          #        - front-vol:/var/www/alellouc.42.fr/wp
+            - front-vol:/var/www
         ports: 
             - "9000:9000"
-        profiles:
-            - mandatory
         networks:
             - entrypoint-tier
-            #- back-tier
         env_file: ".env"
 
 
 networks:
     entrypoint-tier:
         attachable: true
-        #    back-tier:
-        #attachable: true
 
 volumes:
     front-vol:
@@ -82,3 +68,9 @@ volumes:
             type: "nfs"
             o: bind
             device: $HOME/data/front-vol
+    back-vol:
+        name: back-vol
+        driver_opts:
+            type: "nfs"
+            o: bind
+            device: $HOME/data/back-vol

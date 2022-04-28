@@ -87,6 +87,7 @@ nginx-intrm:
 # if the volume does not yet exist, we must create it otherwise docker triggers
 # an error
 	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
+	if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} 
 	cd ${SRCS} && ${COMPOSE_RUN}
 #	&& ${COMPOSE_EXEC}

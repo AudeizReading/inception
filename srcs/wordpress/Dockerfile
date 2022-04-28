@@ -21,31 +21,40 @@ RUN		apt-get update -y && apt-get upgrade -y \
 		&& sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
 		&& apt-get update -y \
 		&& apt-get install -y php8.1 \
-#		php8.1-bcmath \
+		php8.1-bcmath \
 		php8.1-fpm \
 		php8.1-xml \
 		php8.1-mysql \
 		php8.1-common \
-		php8.1-pdo \
-#		php8.1-snmp \
+		php8.1-readline \
+		php8.1-snmp \
 		php-json \
-#		php8.1-intl \
-#		php8.1-zip \
-#		php8.1-ldap \
-#		php8.1-gd \
-#		php8.1-cli \
-#		php8.1-bz \
-#		php8.1-curl \
-#		php8.1-mbstring \
-#		php8.1-pgsql \
-#		php8.1-opcache \
-#		php8.1-soap \
+		php8.1-intl \
+		php8.1-zip \
+		php8.1-ldap \
+		php8.1-gd \
+		php8.1-cli \
+		php8.1-bz \
+		php8.1-curl \
+		php8.1-mbstring \
+		php8.1-pgsql \
+		php8.1-opcache \
+		php8.1-soap \
 		php8.1-cgi \
 		&& mkdir -p /var/run/php
 
 # Copy configs files
 COPY	/conf/php.ini /etc/php/8.1/fpm/php.ini
 COPY	/conf/www.conf /etc/php/8.1/fpm/pool.d/www.conf
+
+# Wordpress
+WORKDIR	/var/www/alellouc.42.fr
+RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
+		https://fr.wordpress.org/latest-fr_FR.tar.gz \
+		&& tar -xvzf latest-fr_FR.tar.gz 
+#RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wp
+# Only for testing php working
+COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
 
 # Launching php deamon
 CMD		["php-fpm8.1", "-F"]
