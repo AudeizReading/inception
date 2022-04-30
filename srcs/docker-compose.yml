@@ -29,6 +29,9 @@ services:
             context: mariadb
             args:
                 - MAINTAINER
+                - MYSQL_ROOT_PW
+                - MYSQL_USER
+                - MYSQL_PW
         restart: always
         env_file: ".env"
         volumes: 

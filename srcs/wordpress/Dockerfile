@@ -11,7 +11,7 @@ LABEL	maintainer $MAINTAINER
 # when I try to install, the install take at least one hour, it is too much so
 # let me talk about the second way : downloading packages via the deb.sury.org
 # repository. It is the repository of the maintainer of the php packages (he
-# explains this very well on his main website page. He is a debian dev. 
+# explains this very well on his main website page. He is a debian dev.) 
 # But we have to add manually this repository to our system
 RUN		apt-get update -y && apt-get upgrade -y \
 		&& apt-get install -y curl apt-transport-https lsb-release \
@@ -53,9 +53,11 @@ RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
 		https://fr.wordpress.org/latest-fr_FR.tar.gz \
 		&& tar -xvzf latest-fr_FR.tar.gz \
 		&& rm -rf latest-fr_FR.tar.gz
-#RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wp
+RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/
+WORKDIR	/
 # Only for testing php working
-COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
+COPY	/conf/index.php				/var/www/alellouc.42.fr/alelluiah.php
+#RUN		apt-get update -y && apt-get install -y mariadb-server
 
 # Launching php deamon
 CMD		["php-fpm8.1", "-F"]

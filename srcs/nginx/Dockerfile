@@ -28,13 +28,6 @@ RUN		cd /tmp && ./gen-ssl-certs.sh $SSL_PATH ./ca-ssl.cnf $FQDN \
 COPY	/conf/nginx.conf			/etc/nginx/nginx.conf
 COPY	/conf/alellouc.42.fr.conf	/etc/nginx/conf.d/alellouc.42.fr.conf
 
-# Only for testing php working
-#COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
-
-#RUN		chown www-data:www-data -R /var/www/
-
 # Launching nginx
 ENTRYPOINT	["nginx"]
 CMD			["-g", "daemon off;"]
-
-STOPSIGNAL	SIGQUIT
