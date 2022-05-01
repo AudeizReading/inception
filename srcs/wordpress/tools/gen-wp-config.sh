@@ -1,13 +1,14 @@
 #!/bin/bash
 
 # generate a wp-config.php file for config wordpress
-# ./gen-wp-config.sh
+# ./gen-wp-config.sh path
 
 function set_define {
 	echo -e "define('${1}', ${2});"
 }
 
-wp_config=/var/www/alellouc.42.fr/wordpress/wp-config.php
+#wp_config=/var/www/alellouc.42.fr/wordpress/wp-config.php
+wp_config=${1}§
 
 echo -e "<?php\n" >> $wp_config
 set_define "DB_NAME" "'wordpress'" >> $wp_config

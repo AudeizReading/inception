@@ -61,7 +61,7 @@ RUN		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cl
 		&& mv wp-cli.phar /usr/local/bin/wp
 #RUN		wp core download
 COPY	/tools/gen-wp-config.sh ./gen-wp-config.sh
-#RUN		./gen-wp-config.sh
+RUN		./gen-wp-config.sh ./wordpress/wp-config.php
 #RUN		wp core install --allow-root
 # -> mais tant que la bdd n'est pas cree lance une erreur
 RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wordpress

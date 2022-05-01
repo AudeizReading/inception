@@ -7,8 +7,6 @@ NAME=				inception
 SRCS=				srcs/
 ENV_FILE=			.env
 ENTRYPOINT_TIER=	inception_entrypoint-tier
-FRONT_TIER=			inception_front-tier
-BACK_TIER=			inception_back-tier
 VOLUMES=			${HOME}/data/
 VOL_CONT_FRONT=		/var/www/
 VOL_CONT_BACK=		/var/lib/mysql/
@@ -16,7 +14,6 @@ VOL_HOTE_FRONT=		${VOLUMES}front-vol/
 VOL_HOTE_BACK=		${VOLUMES}back-vol/
 NGINX=				./${SRCS}nginx/
 MARIADB=			./${SRCS}mariadb/
-TOOLS=				./${SRCS}${SERVICE}/tools/
 WP=					./${SRCS}wordpress/
 TAG=				${NAME}
 
@@ -70,12 +67,13 @@ PRUNE=				docker system prune -a --volumes
 ################################################################################
 
 
-.PHONY: ${NAME} up fclean check clean re nginx nginx-intrm deluser-vol
+.PHONY: up fclean check clean re inception nginx-intrm deluser-vol
 
 ${NAME}: nginx
 
 nginx:
 	make nginx-intrm SERVICE=$@ PORT_CONTAINER=443 PORT_HOTE=443
+	touch .$@
 
 nginx-intrm:
 # if the volume does not yet exist, we must create it otherwise docker triggers
@@ -107,6 +105,7 @@ up:
 
 clean:
 	cd ${SRCS} && ${DOWN}
+	${RM} .nginx
 
 fclean: clean
 	${CLEAN_VOL_FRONT}
