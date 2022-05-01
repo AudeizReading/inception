@@ -70,11 +70,9 @@ PRUNE=				docker system prune -a --volumes
 ################################################################################
 
 
-.PHONY: ${NAME}
+.PHONY: ${NAME} up fclean check clean re nginx nginx-intrm deluser-vol
 
 ${NAME}: nginx
-
-.PHONY: nginx nginx-intrm nginx-clean nginx-clean-intrm
 
 nginx:
 	make nginx-intrm SERVICE=$@ PORT_CONTAINER=443 PORT_HOTE=443
@@ -85,24 +83,27 @@ nginx-intrm:
 	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
 	if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
 	cd ${SRCS} && ${COMPOSE_BUILD} && ${COMPOSE_RUN}
-#	cd ${SRCS} && ${COMPOSE_RUN}
-
-nginx-clean:
-	make nginx-clean-intrm SERVICE=nginx
-
-nginx-clean-intrm:
-	cd ${SRCS} && ${DOWN} 
-	${CLEAN_VOL_FRONT}
-	${CLEAN_VOL_BACK}
-	${RMI}
-
-.PHONY: ${NAME} fclean check clean re
 
 check:
-	${LS_CONT}
 	${LS_IMG}
-	${LS_VOL}
 	${LS_NET}
+	${LS_VOL}
+	${LS_CONT}
+
+nginx-exec:
+	make exec-intrm SERVICE=nginx
+
+wordpress-exec:
+	make exec-intrm SERVICE=wordpress
+
+mariadb-exec:
+	make exec-intrm SERVICE=mariadb
+
+exec-intrm:
+	cd ${SRCS} && ${EXEC_DEBUG}
+
+up:
+	cd ${SRCS} && ${UP}
 
 clean:
 	cd ${SRCS} && ${DOWN}
@@ -110,10 +111,19 @@ clean:
 fclean: clean
 	${CLEAN_VOL_FRONT}
 	${CLEAN_VOL_BACK}
-	docker image rm `${LS_IMG} -q` 2> /dev/null
+	docker image rm nginx:${TAG}
+	docker image rm wordpress:${TAG}
+	docker image rm mariadb:${TAG}
+	docker image rm debian:buster
+	${PRUNE}
+
+prune:
 	${PRUNE}
 
 re: fclean all
+
+deluser-vol:
+	if [ -d ${VOLUMES} ]; then ${RM} ${VOLUMES}; fi
 #
 #
 #

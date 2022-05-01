@@ -50,16 +50,16 @@ COPY	/conf/www.conf /etc/php/8.1/fpm/pool.d/www.conf
 
 # Wordpress
 WORKDIR	/var/www/alellouc.42.fr
-#RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
-#		https://fr.wordpress.org/latest-fr_FR.tar.gz \
-#		&& tar -xvzf latest-fr_FR.tar.gz \
-#		&& rm -rf latest-fr_FR.tar.gz
+RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
+		https://fr.wordpress.org/latest-fr_FR.tar.gz \
+		&& tar -xvzf latest-fr_FR.tar.gz \
+		&& rm -rf latest-fr_FR.tar.gz
 
 # Il nous faut wp-cli pour terminer l'install de Wordpress en ligne de commande
 RUN		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
 		&& chmod +x wp-cli.phar \
 		&& mv wp-cli.phar /usr/local/bin/wp
-RUN		wp core download
+#RUN		wp core download
 COPY	/tools/gen-wp-config.sh ./gen-wp-config.sh
 #RUN		./gen-wp-config.sh
 #RUN		wp core install --allow-root
@@ -67,7 +67,7 @@ COPY	/tools/gen-wp-config.sh ./gen-wp-config.sh
 RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wordpress
 WORKDIR	/var/www
 # Only for testing php working
-#COPY	/conf/index.php				/var/www/alellouc.42.fr/alelluiah.php
+COPY	/conf/index.php				/var/www/alellouc.42.fr/alelluiah.php
 
 # Launching php deamon
 CMD		["php-fpm8.1", "-F"]
