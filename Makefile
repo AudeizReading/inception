@@ -41,6 +41,7 @@ START=				docker container start ${SERVICE}
 STOP=				docker container stop ${SERVICE} 
 RMC=				docker container rm ${SERVICE}
 EXEC_DEBUG=			docker exec -it ${SERVICE} /bin/bash
+LOGS=				docker logs ${SERVICE}
 
 UP=					docker-compose up -d
 DOWN=				docker-compose down
@@ -102,6 +103,19 @@ mariadb-exec:
 exec-intrm:
 	cd ${SRCS} && ${EXEC_DEBUG}
 
+nginx-log:
+	make log-intrm SERVICE=nginx
+
+wordpress-log:
+	make log-intrm SERVICE=wordpress
+
+mariadb-log:
+	make log-intrm SERVICE=mariadb
+
+log-intrm:
+	${LOGS}
+
+# maybe check that the user is not root... we will have some troubles if it is
 up:
 	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
 	if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi

@@ -16,9 +16,17 @@ fi
 # si le premier parametre du script est mysqld
 if [ "$1" = 'mysqld' ]; then
 	# read DATADIR from the MySQL config
+	# alors on recupere le repertoire de datadir en lancant la cmd contenue dans
+	# $@, souvenez vous qu'on a set les params de ce script aux valeurs de
+	# mysqld + ce qu'il y avait dans la variable $@
+	# normalement datadir=/var/lib/mysql -> ici on recup /var/lib/mysql
 	DATADIR="$("$@" --verbose --help 2>/dev/null | awk '$1 == "datadir" { print $2; exit }')"
 	
+	# si le directory /var/lib/mysql/mysql n'existe pas alors
 	if [ ! -d "$DATADIR/mysql" ]; then
+		# si MYSQL_ROOT_PW et MYSQL_ALLOW_EMPTY_PASSWORD sont des vriables vides
+		# alors on lance une erreur et on quitte l'install -> le conteneur ne
+		# sera pas en etat de tourner !
 		if [ -z "$MYSQL_ROOT_PW" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ]; then
 			echo >&2 'error: database is uninitialized and MYSQL_ROOT_PW not set'
 			echo >&2 '  Did you forget to add -e MYSQL_ROOT_PW=... ?'
@@ -26,13 +34,18 @@ if [ "$1" = 'mysqld' ]; then
 		fi
 		
 		echo 'Initializing database'
-    mysql_install_db --datadir="$DATADIR"
+		# on exec le programme mysql_install_db --datadir=/var/lib/mysql pour
+		# initialiser la base de donnees
+		mysql_install_db --datadir="$DATADIR"
 		echo 'Database initialized'
 		
 		# These statements _must_ be on individual lines, and _must_ end with
 		# semicolons (no line breaks or comments are permitted).
 		# TODO proper SQL escaping on ALL the things D:
-		
+
+		# On genere un fichier de config .sql, ca va nous permettre de nous
+		# affranchir de l'install interactive de mariadb (donc pas besoin de
+		# lancer maria-secure-installation)
 		tempSqlFile='/tmp/mysql-first-time.sql'
 		cat > "$tempSqlFile" <<-EOSQL
 			DELETE FROM mysql.user ;
@@ -55,10 +68,15 @@ if [ "$1" = 'mysqld' ]; then
 		
 		echo 'FLUSH PRIVILEGES ;' >> "$tempSqlFile"
 		
+		# comme pour quasi tous les set de ce programme : les nvx param
+		# positionnels de ce script deviennent: le contenu de $@ +
+		# --init-file=init.sql
 		set -- "$@" --init-file="$tempSqlFile"
 	fi
 	
 	chown -R mysql:mysql "$DATADIR"
 fi
 
+# On execute les parametres positionnels puisqu'on a tout ce qu'il noous faut
+# dedans a force de set les params positionnels
 exec "$@"

@@ -59,13 +59,16 @@ RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
 RUN		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
 		&& chmod +x wp-cli.phar \
 		&& mv wp-cli.phar /usr/local/bin/wp
+#wp core install --allow-root --url=https://alellouc.42.fr --title=inception
+#		--admin_user=$MYSQL_USER --admin_email=alellouc@student.42nice.fr //
+#		admin passwd = U!Bi9Kd!FInbUmGCI^
 #RUN		wp core download
 COPY	/tools/gen-wp-config.sh ./gen-wp-config.sh
-RUN		./gen-wp-config.sh ./wordpress/wp-config.php
+RUN		./gen-wp-config.sh ./wordpress/wp-config.php \
+		&& chmod 644 wordpress/wp-config.php
 #RUN		wp core install --allow-root
 # -> mais tant que la bdd n'est pas cree lance une erreur
 RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wordpress
-WORKDIR	/var/www
 # Only for testing php working
 COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
 
