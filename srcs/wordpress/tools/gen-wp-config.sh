@@ -8,7 +8,7 @@ function set_define {
 }
 
 #wp_config=/var/www/alellouc.42.fr/wordpress/wp-config.php
-wp_config=${1}§
+wp_config=${1}
 
 echo -e "<?php\n" >> $wp_config
 set_define "DB_NAME" "'wordpress'" >> $wp_config

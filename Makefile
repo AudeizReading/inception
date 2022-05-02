@@ -49,6 +49,8 @@ COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} --name=${SERV
 COMPOSE_START=		docker-compose start ${SERVICE}
 COMPOSE_STOP=		docker-compose stop ${SERVICE}
 COMPOSE_RMC=		docker-compose rm -v ${SERVICE}
+# Warning: docker-compose exec does not seem to work ! do not know why...,
+# better results by using the docker exec cmd directly ${EXEC_DEBUG}
 COMPOSE_EXEC=		docker-compose exec -it ${SERVICE} /bin/bash
 
 CLEAN_NETWORK=		docker network rm ${NETWORK}
@@ -69,11 +71,11 @@ PRUNE=				docker system prune -a --volumes
 
 .PHONY: up fclean check clean re inception nginx-intrm deluser-vol
 
-${NAME}: nginx
+${NAME}: up
 
 nginx:
 	make nginx-intrm SERVICE=$@ PORT_CONTAINER=443 PORT_HOTE=443
-	touch .$@
+#	touch .$@
 
 nginx-intrm:
 # if the volume does not yet exist, we must create it otherwise docker triggers
@@ -101,11 +103,13 @@ exec-intrm:
 	cd ${SRCS} && ${EXEC_DEBUG}
 
 up:
+	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
+	if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
 	cd ${SRCS} && ${UP}
 
 clean:
 	cd ${SRCS} && ${DOWN}
-	${RM} .nginx
+#	${RM} .nginx
 
 fclean: clean
 	${CLEAN_VOL_FRONT}
@@ -122,7 +126,11 @@ prune:
 re: fclean all
 
 deluser-vol:
-	if [ -d ${VOLUMES} ]; then ${RM} ${VOLUMES}; fi
+	if [ $(shell id -un) = "root" ] && [ -d /home/alellouc/data ];\
+		then ${RM} /home/alellouc/data;\
+	elif [ -d ${VOLUMES} ]; \
+		then ${RM} ${VOLUMES};\
+	fi
 #
 #
 #

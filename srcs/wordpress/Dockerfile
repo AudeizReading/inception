@@ -67,7 +67,7 @@ RUN		./gen-wp-config.sh ./wordpress/wp-config.php
 RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wordpress
 WORKDIR	/var/www
 # Only for testing php working
-COPY	/conf/index.php				/var/www/alellouc.42.fr/alelluiah.php
+COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
 
 # Launching php deamon
 CMD		["php-fpm8.1", "-F"]
