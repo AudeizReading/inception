@@ -15,8 +15,6 @@ VOL_HOTE_BACK=		${VOLUMES}back-vol/
 NGINX=				./${SRCS}nginx/
 MARIADB=			./${SRCS}mariadb/
 WP=					./${SRCS}wordpress/
-TAG=				${NAME}
-
 
 ################################################################################
 #                                                                              #
@@ -35,7 +33,7 @@ ECHO=				printf
 ################################################################################
 
 BUILD=				docker image build -t ${SERVICE} ./${SERVICE}/
-RMI=				docker image rm ${SERVICE}:${TAG}
+RMI=				docker image rm ${SERVICE}
 RUN=				docker container run -p ${PORT_HOTE}:${PORT_CONTAINER} -v ${VOL_HOTE}:${VOL_CONT} --name=${SERVICE} -itd ${SERVICE}
 START=				docker container start ${SERVICE} 
 STOP=				docker container stop ${SERVICE} 
@@ -45,6 +43,7 @@ LOGS=				docker logs ${SERVICE}
 
 UP=					docker-compose up -d
 DOWN=				docker-compose down
+PS=					docker-compose ps -a
 COMPOSE_BUILD=		docker-compose --verbose build ${SERVICE}
 COMPOSE_RUN=		docker-compose run -p ${PORT_HOTE}:${PORT_CONTAINER} --name=${SERVICE} -d ${SERVICE}
 COMPOSE_START=		docker-compose start ${SERVICE}
@@ -70,82 +69,78 @@ PRUNE=				docker system prune -a --volumes
 ################################################################################
 
 
-.PHONY: up fclean check clean re inception nginx-intrm deluser-vol
+.PHONY: ${NAME} fclean check clean re deluser-vol
 
 ${NAME}: up
 
-nginx:
-	make nginx-intrm SERVICE=$@ PORT_CONTAINER=443 PORT_HOTE=443
-#	touch .$@
+up: timestamp
+	@${ECHO} "checking if user's volumes exist...\r"
+	@if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
+	@if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
+	@${ECHO} "starting containers with docker-compose...\r"
+	@cd ${SRCS} && ${UP}
+	@touch $@
 
-nginx-intrm:
-# if the volume does not yet exist, we must create it otherwise docker triggers
-# an error
-	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
-	if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
-	cd ${SRCS} && ${COMPOSE_BUILD} && ${COMPOSE_RUN}
+timestamp:
+	@touch $@
 
 check:
 	${LS_IMG}
 	${LS_NET}
 	${LS_VOL}
 	${LS_CONT}
+	cd ${SRCS} && ${PS}
 
 nginx-exec:
-	make exec-intrm SERVICE=nginx
+	@make exec-intrm SERVICE=nginx
 
 wordpress-exec:
-	make exec-intrm SERVICE=wordpress
+	@make exec-intrm SERVICE=wordpress
 
 mariadb-exec:
-	make exec-intrm SERVICE=mariadb
+	@make exec-intrm SERVICE=mariadb
 
 exec-intrm:
-	cd ${SRCS} && ${EXEC_DEBUG}
+	@${ECHO} "executing S{SERVICE} container...\r"
+	@cd ${SRCS} && ${EXEC_DEBUG}
 
 nginx-log:
-	make log-intrm SERVICE=nginx
+	@make log-intrm SERVICE=nginx
 
 wordpress-log:
-	make log-intrm SERVICE=wordpress
+	@make log-intrm SERVICE=wordpress
 
 mariadb-log:
-	make log-intrm SERVICE=mariadb
+	@make log-intrm SERVICE=mariadb
 
 log-intrm:
-	${LOGS}
-
-# maybe check that the user is not root... we will have some troubles if it is
-up:
-	if [ ! -f ${VOLUMES}front-vol ]; then mkdir -m 777 -p ${VOLUMES}front-vol; fi
-	if [ ! -f ${VOLUMES}back-vol ]; then mkdir -m 777 -p ${VOLUMES}back-vol; fi
-	cd ${SRCS} && ${UP}
+	@${ECHO} "logging S{SERVICE} container...\r"
+	@${LOGS}
 
 clean:
-	cd ${SRCS} && ${DOWN}
-#	${RM} .nginx
+	@${ECHO} "stopping containers with docker-compose...\r"
+	@cd ${SRCS} && ${DOWN}
+	@${RM} up timestamp
 
 fclean: clean
-	${CLEAN_VOL_FRONT}
-	${CLEAN_VOL_BACK}
-	docker image rm nginx:${TAG}
-	docker image rm wordpress:${TAG}
-	docker image rm mariadb:${TAG}
-	docker image rm debian:buster
-	${PRUNE}
+	@${ECHO} "cleaning docker volumes...\r"
+	@${CLEAN_VOL_FRONT}
+	@${CLEAN_VOL_BACK}
+	@${ECHO} "cleaning docker images...\r"
+	@docker image rm nginx
+	@docker image rm wordpress
+	@docker image rm mariadb
+	@docker image rm debian:buster
 
 prune:
-	${PRUNE}
+	@${PRUNE}
 
 re: fclean all
 
 deluser-vol:
-	if [ $(shell id -un) = "root" ] && [ -d /home/alellouc/data ];\
+	@${ECHO} "deleting user volumes...\r"
+	@if [ $(shell id -un) = "root" ] && [ -d /home/alellouc/data ];\
 		then ${RM} /home/alellouc/data;\
 	elif [ -d ${VOLUMES} ]; \
 		then ${RM} ${VOLUMES};\
 	fi
-#
-#
-#
-#	docker-compose config -> check la config .yml du container

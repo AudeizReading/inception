@@ -3,7 +3,7 @@ version: "3.9"
 services:
     nginx:
         container_name: nginx
-        image: nginx:inception
+        image: nginx
         build:
             context: ./nginx
             args:
@@ -24,7 +24,7 @@ services:
 
     mariadb:
         container_name: mariadb
-        image: mariadb:inception
+        image: mariadb
         build:
             context: mariadb
             args:
@@ -45,7 +45,7 @@ services:
 
     wordpress:
         container_name: wordpress
-        image: wordpress:inception
+        image: wordpress
         build:
             context: wordpress
             args:
