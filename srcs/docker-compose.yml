@@ -29,11 +29,11 @@ services:
             context: mariadb
             args:
                 - MAINTAINER
-                - MYSQL_ROOT_PW
-                - MYSQL_USER
-                - MYSQL_PW
-                - MYSQL_DB
-                - MYSQL_ALLOW_EMPTY_PASSWORD
+                - INCEPTION_DB
+                - INCEPTION_ADMIN
+                - INCEPTION_ADMIN_PW
+                - INCEPTION_EDITOR
+                - INCEPTION_EDITOR_PW
         restart: always
         env_file: ".env"
         volumes: 
@@ -50,6 +50,15 @@ services:
             context: wordpress
             args:
                 - MAINTAINER
+                - FQDN
+                - INCEPTION_DB
+                - INCEPTION_HOST
+                - INCEPTION_ADMIN
+                - INCEPTION_ADMIN_PW
+                - INCEPTION_EDITOR
+                - INCEPTION_EDITOR_PW
+                - ADMIN_EMAIL
+                - EDITOR_EMAIL
         restart: always
         depends_on:
         - mariadb

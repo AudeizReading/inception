@@ -2,6 +2,15 @@
 FROM	debian:buster
 
 ARG		MAINTAINER
+ARG     FQDN
+ARG     INCEPTION_DB
+ARG     INCEPTION_HOST
+ARG     INCEPTION_ADMIN
+ARG     INCEPTION_ADMIN_PW
+ARG     INCEPTION_EDITOR
+ARG     INCEPTION_EDITOR_PW
+ARG		ADMIN_EMAIL
+ARG		EDITOR_EMAIL
 
 LABEL	maintainer $MAINTAINER
 
@@ -47,30 +56,31 @@ RUN		apt-get update -y && apt-get upgrade -y \
 # Copy configs files
 COPY	/conf/php.ini /etc/php/8.1/fpm/php.ini
 COPY	/conf/www.conf /etc/php/8.1/fpm/pool.d/www.conf
+COPY	/tools/docker-entrypoint.sh /usr/local/bin/
+COPY	/tools/gen-wp-config.sh /usr/local/bin/
 
 # Wordpress
-WORKDIR	/var/www/alellouc.42.fr
-RUN		curl -sSLo /var/www/alellouc.42.fr/latest-fr_FR.tar.gz \
+WORKDIR	/var/www/$FQDN
+RUN		curl -sSLo /var/www/$FQDN/latest-fr_FR.tar.gz \
 		https://fr.wordpress.org/latest-fr_FR.tar.gz \
 		&& tar -xvzf latest-fr_FR.tar.gz \
 		&& rm -rf latest-fr_FR.tar.gz
 
-# Il nous faut wp-cli pour terminer l'install de Wordpress en ligne de commande
+# We need wp-cli for finishing the Wordpress install non-interactively
 RUN		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar \
 		&& chmod +x wp-cli.phar \
 		&& mv wp-cli.phar /usr/local/bin/wp
-#wp core install --allow-root --url=https://alellouc.42.fr --title=inception
-#		--admin_user=$MYSQL_USER --admin_email=alellouc@student.42nice.fr //
-#		admin passwd = U!Bi9Kd!FInbUmGCI^
-#RUN		wp core download
-COPY	/tools/gen-wp-config.sh ./gen-wp-config.sh
-RUN		./gen-wp-config.sh ./wordpress/wp-config.php \
-		&& chmod 644 wordpress/wp-config.php
-#RUN		wp core install --allow-root
-# -> mais tant que la bdd n'est pas cree lance une erreur
-RUN		chown www-data:www-data -R /var/www/alellouc.42.fr/wordpress
-# Only for testing php working
-COPY	/conf/index.php				/var/www/alellouc.42.fr/index.php
 
-# Launching php deamon
+WORKDIR	/var/www/$FQDN/wordpress
+
+RUN		gen-wp-config.sh wp-config.php \
+		&& chmod 644 wp-config.php
+
+RUN		chown www-data:www-data -R /var/www/$FQDN/wordpress
+
+# Launching php daemon via docker-entrypoint.sh. Need this file because of the
+# last install : need to reach mariadb database for pretty well installing, can
+# only do that at runtime, not at built time, this is explain why. See the
+# docker-entrypoint.sh for more infos
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD		["php-fpm8.1", "-F"]

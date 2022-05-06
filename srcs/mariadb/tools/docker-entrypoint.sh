@@ -24,12 +24,12 @@ if [ "$1" = 'mysqld' ]; then
 	
 	# si le directory /var/lib/mysql/mysql n'existe pas alors
 	if [ ! -d "$DATADIR/mysql" ]; then
-		# si MYSQL_ROOT_PW et MYSQL_ALLOW_EMPTY_PASSWORD sont des vriables vides
+		# si INCEPTION_ADMIN_PW et MYSQL_ALLOW_EMPTY_PASSWORD sont des vriables vides
 		# alors on lance une erreur et on quitte l'install -> le conteneur ne
 		# sera pas en etat de tourner !
-		if [ -z "$MYSQL_ROOT_PW" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ]; then
-			echo >&2 'error: database is uninitialized and MYSQL_ROOT_PW not set'
-			echo >&2 '  Did you forget to add -e MYSQL_ROOT_PW=... ?'
+		if [ -z "$INCEPTION_ADMIN_PW" -a -z "$MYSQL_ALLOW_EMPTY_PASSWORD" ]; then
+			echo >&2 'error: database is uninitialized and INCEPTION_ADMIN_PW not set'
+			echo >&2 '  Did you forget to add -e INCEPTION_ADMIN_PW=... ?'
 			exit 1
 		fi
 		
@@ -46,37 +46,37 @@ if [ "$1" = 'mysqld' ]; then
 		# On genere un fichier de config .sql, ca va nous permettre de nous
 		# affranchir de l'install interactive de mariadb (donc pas besoin de
 		# lancer maria-secure-installation)
-		tempSqlFile='/tmp/mysql-first-time.sql'
-		cat > "$tempSqlFile" <<-EOSQL
+		init_mariadb='/tmp/init-inception-database.sql'
+		cat > "${init_mariadb}" <<-EOSQL
 			DELETE FROM mysql.user ;
-			CREATE USER 'root'@'%' IDENTIFIED BY '${MYSQL_ROOT_PW}' ;
-			GRANT ALL ON *.* TO 'root'@'%' WITH GRANT OPTION ;
+			CREATE USER '${INCEPTION_ADMIN}'@'%' IDENTIFIED BY '${INCEPTION_ADMIN_PW}' ;
+			GRANT ALL ON *.* TO '${INCEPTION_ADMIN}'@'%' WITH GRANT OPTION ;
 			DROP DATABASE IF EXISTS test ;
 		EOSQL
 		
-		if [ "$MYSQL_DB" ]; then
-			echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DB\` ;" >> "$tempSqlFile"
+		if [ "${INCEPTION_DB}" ]; then
+			echo "CREATE DATABASE IF NOT EXISTS \`${INCEPTION_DB}\` ;" >> "${init_mariadb}"
 		fi
 		
-		if [ "$MYSQL_USER" -a "$MYSQL_PW" ]; then
-			echo "CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PW' ;" >> "$tempSqlFile"
+		if [ "${INCEPTION_EDITOR}" -a "${INCEPTION_EDITOR_PW}" ]; then
+			echo "CREATE USER '${INCEPTION_EDITOR}'@'%' IDENTIFIED BY '${INCEPTION_EDITOR_PW}' ;" >> "${init_mariadb}"
 			
-			if [ "$MYSQL_DB" ]; then
-				echo "GRANT ALL ON \`$MYSQL_DB\`.* TO '$MYSQL_USER'@'%' ;" >> "$tempSqlFile"
+			if [ "${INCEPTION_DB}" ]; then
+				echo "GRANT ALL ON \`${INCEPTION_DB}\`.* TO '${INCEPTION_EDITOR}'@'%' ;" >> "${init_mariadb}"
 			fi
 		fi
 		
-		echo 'FLUSH PRIVILEGES ;' >> "$tempSqlFile"
+		echo 'FLUSH PRIVILEGES ;' >> "${init_mariadb}"
 		
 		# comme pour quasi tous les set de ce programme : les nvx param
 		# positionnels de ce script deviennent: le contenu de $@ +
 		# --init-file=init.sql
-		set -- "$@" --init-file="$tempSqlFile"
+		set -- "$@" --init-file="${init_mariadb}"
 	fi
 	
 	chown -R mysql:mysql "$DATADIR"
 fi
 
-# On execute les parametres positionnels puisqu'on a tout ce qu'il noous faut
+# On execute les parametres positionnels puisqu'on a tout ce qu'il nous faut
 # dedans a force de set les params positionnels
 exec "$@"

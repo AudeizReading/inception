@@ -2,16 +2,16 @@
 FROM	debian:buster
 
 ARG		MAINTAINER
-ARG		MYSQL_ROOT_PW
-ARG		MYSQL_USER
-ARG		MYSQL_PW
-ARG		MYSQL_DB
-ARG		MYSQL_ALLOW_EMPTY_PASSWORD
+#ARG     FQDN
+ARG     INCEPTION_DB
+ARG     INCEPTION_ADMIN
+ARG     INCEPTION_ADMIN_PW
+ARG     INCEPTION_EDITOR
+ARG     INCEPTION_EDITOR_PW
 
 LABEL	maintainer $MAINTAINER
 
-RUN		apt-get update -y && apt-get install -y perl curl cron
-#RUN		apt-get update -y && apt-get install -y perl curl 
+RUN		apt-get update -y && apt-get install -y perl curl 
 RUN		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash
 RUN		apt-get update -y && apt-get install -y mariadb-server \
 		mariadb-client \
