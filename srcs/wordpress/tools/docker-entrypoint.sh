@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set -e = exit from this script at the first exec error encountered
-set -ex
+set -e
 
 # if first arg of this script is equal to php-fpm8.1 so
 if [ "$1" = 'php-fpm8.1' ]; then
