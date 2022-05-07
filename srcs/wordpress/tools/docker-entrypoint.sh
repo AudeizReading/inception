@@ -1,14 +1,16 @@
 #!/bin/bash
 
 # set -e = exit from this script at the first exec error encountered
-set -e
+set -ex
 
 # if first arg of this script is equal to php-fpm8.1 so
 if [ "$1" = 'php-fpm8.1' ]; then
 	# finishing wp installation (corresponding to the step 2 of install by
 	# browser)
 	wp core install --skip-email --allow-root --url=https://$FQDN --title=$INCEPTION_DB --admin_user=$INCEPTION_ADMIN --admin_password=$INCEPTION_ADMIN_PW --admin_email=$ADMIN_EMAIL
-	if [ $? -eq 0 ]; then
+set +e
+	wp user get ${INCEPTION_EDITOR} --allow-root
+	if [ $? -ne 0 ]; then
 		# create one user as asked
 		wp user create $INCEPTION_EDITOR $EDITOR_EMAIL --allow-root --url=https://$FQDN --role=editor --user_pass=$INCEPTION_EDITOR_PW
 		# install and activate pluging for restricting usernames
@@ -17,5 +19,6 @@ if [ "$1" = 'php-fpm8.1' ]; then
 		wp plugin install restrict-usernames --allow-root
 		wp plugin activate restrict-usernames --allow-root
 	fi
+set -e
 	exec "$@"
 fi
