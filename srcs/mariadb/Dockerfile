@@ -10,12 +10,10 @@ ARG     INCEPTION_EDITOR_PW
 
 LABEL	maintainer $MAINTAINER
 
-RUN		apt-get update -y && apt-get install -y perl curl 
-RUN		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash
-RUN		apt-get update -y && apt-get install -y mariadb-server \
-		mariadb-client \
+RUN		apt-get update -y && apt-get install -y perl curl; \ 
+		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash; \
+		apt-get update -y && apt-get install -y mariadb-server \
 		libmariadb3 \
-		mariadb-backup \
 		mariadb-common
 COPY	/conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
 COPY	/tools/docker-entrypoint.sh /usr/local/bin/

@@ -74,9 +74,8 @@ RUN		curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cl
 WORKDIR	/var/www/$FQDN/wordpress
 
 RUN		gen-wp-config.sh wp-config.php \
-		&& chmod 644 wp-config.php
-
-RUN		chown www-data:www-data -R /var/www/$FQDN/wordpress
+		&& chmod 644 wp-config.php \
+		&& chown www-data:www-data -R /var/www/$FQDN/wordpress
 
 # Launching php daemon via docker-entrypoint.sh. Need this file because of the
 # last install : need to reach mariadb database for pretty well installing, can
