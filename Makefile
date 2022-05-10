@@ -150,6 +150,13 @@ mariadb-consult-comments:
 defense-intrm:
 	docker exec -it ${SERVICE} ${COMMANDS}
 
+lynx:
+	@if [ -x /usr/bin/lynx ] || [ `which lynx 2>&1 > /dev/null` -eq 0 ]; then \
+		lynx https://alellouc.42.fr; \
+	else \
+		echo "browser lynx is not installed."; \
+	fi
+
 ################################################################################
 clean:
 	@${ECHO} "stopping containers with docker-compose...\r"
