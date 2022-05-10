@@ -23,9 +23,10 @@ LABEL	maintainer $MAINTAINER
 # explains this very well on his main website page. He is a debian dev.) 
 # But we have to add manually this repository to our system
 RUN		apt-get update -y && apt-get upgrade -y \
-		&& apt-get install -y curl \
+		&& apt-get install -y -q \
 			apt-transport-https \
 			ca-certificates \
+			curl \
 			lsb-release \
 		&& curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg \
 		https://packages.sury.org/php/apt.gpg \

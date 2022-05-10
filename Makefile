@@ -91,6 +91,7 @@ check:
 	${LS_CONT}
 	cd ${SRCS} && ${PS}
 
+################################################################################
 nginx-exec:
 	@make exec-intrm SERVICE=nginx
 
@@ -104,6 +105,7 @@ exec-intrm:
 	@${ECHO} "executing S{SERVICE} container...\r"
 	@cd ${SRCS} && ${EXEC_DEBUG}
 
+################################################################################
 nginx-log:
 	@make log-intrm SERVICE=nginx
 
@@ -117,6 +119,38 @@ log-intrm:
 	@${ECHO} "logging S{SERVICE} container...\r"
 	@${LOGS}
 
+################################################################################
+wp-consult-posts:
+	@make defense-intrm SERVICE=wordpress COMMANDS="wp post list --allow-root"
+
+wp-consult-users:
+	@make defense-intrm SERVICE=wordpress COMMANDS="wp user list --allow-root"
+
+wp-consult-comments:
+	@make defense-intrm SERVICE=wordpress COMMANDS="wp comment list --allow-root"
+
+wp-create-comment-1:
+	@make defense-intrm SERVICE=wordpress COMMANDS="wp comment create --comment_post_ID=1 --comment_content=\"Un joyeux commentaire de defense de projet\" --comment_author=\"qui-tu-veux\" --comment_author_email=\"qui-tu-veux@mais-vraiment.fr\" --allow-root"
+
+wp-create-comment-7:
+	@make defense-intrm SERVICE=wordpress COMMANDS="wp comment create --comment_post_ID=7 --comment_content=\"Un joyeux commentaire de defense devant correspondre au post de titre Wilkommen\" --comment_author=\"qui-tu-veux\" --comment_author_email=\"qui-tu-veux@mais-vraiment.fr\" --allow-root"
+
+wp-create-post:
+	@make defense-intrm SERVICE=wordpress COMMANDS="wp --allow-root post create --post_content=\"Bienvenue sur Inception: Le Website.\" --post_title=\"Wilkommen\" --comment_status=open --tags_input=\"inception\" --post_status=publish"
+
+mariadb-consult-users:
+	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SELECT * FROM inception.inception_users;\\\" | mysql -u alellouc -p\""
+
+mariadb-consult-posts:
+	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SELECT post_content FROM inception.inception_posts;\\\" | mysql -u alellouc -p\""
+
+mariadb-consult-comments:
+	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SELECT comment_content FROM inception.inception_comments;\\\" | mysql -u alellouc -p\""
+
+defense-intrm:
+	docker exec -it ${SERVICE} ${COMMANDS}
+
+################################################################################
 clean:
 	@${ECHO} "stopping containers with docker-compose...\r"
 	@cd ${SRCS} && ${DOWN}
