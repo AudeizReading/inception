@@ -1,16 +1,16 @@
 # wordpress Dockerfile
 FROM	debian:buster
 
-ARG		MAINTAINER
-ARG     FQDN
-ARG     INCEPTION_DB
-ARG     INCEPTION_HOST
-ARG     INCEPTION_ADMIN
-ARG     INCEPTION_ADMIN_PW
-ARG     INCEPTION_EDITOR
-ARG     INCEPTION_EDITOR_PW
 ARG		ADMIN_EMAIL
 ARG		EDITOR_EMAIL
+ARG     FQDN
+ARG     INCEPTION_ADMIN
+ARG     INCEPTION_ADMIN_PW
+ARG     INCEPTION_DB
+ARG     INCEPTION_EDITOR
+ARG     INCEPTION_EDITOR_PW
+ARG     INCEPTION_HOST
+ARG		MAINTAINER
 
 LABEL	maintainer $MAINTAINER
 
@@ -23,34 +23,38 @@ LABEL	maintainer $MAINTAINER
 # explains this very well on his main website page. He is a debian dev.) 
 # But we have to add manually this repository to our system
 RUN		apt-get update -y && apt-get upgrade -y \
-		&& apt-get install -y curl apt-transport-https lsb-release \
-		ca-certificates \
+		&& apt-get install -y curl \
+			apt-transport-https \
+			ca-certificates \
+			lsb-release \
 		&& curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg \
 		https://packages.sury.org/php/apt.gpg \
 		&& sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
 		&& apt-get update -y \
-		&& apt-get install -y php8.1 \
-		php8.1-bcmath \
-		php8.1-fpm \
-		php8.1-xml \
-		php8.1-mysql \
-		php8.1-common \
-		php8.1-readline \
-		php8.1-snmp \
-		php-json \
-		php8.1-intl \
-		php8.1-zip \
-		php8.1-ldap \
-		php8.1-gd \
-		php8.1-cli \
-		php8.1-bz \
-		php8.1-curl \
-		php8.1-mbstring \
-		php8.1-pgsql \
-		php8.1-opcache \
-		php8.1-soap \
-		php8.1-cgi \
-		less \
+		&& apt-get install -y \
+			# best practice to range the packages by alphabetical order
+			less \
+			php8.1 \
+			php8.1-bcmath \
+			php8.1-bz \
+			php8.1-cli \
+			php8.1-cgi \
+			php8.1-common \
+			php8.1-curl \
+			php8.1-fpm \
+			php8.1-gd \
+			php8.1-intl \
+			php8.1-ldap \
+			php8.1-mbstring \
+			php8.1-mysql \
+			php8.1-opcache \
+			php8.1-pgsql \
+			php8.1-readline \
+			php8.1-snmp \
+			php8.1-soap \
+			php8.1-xml \
+			php8.1-zip \
+			php-json \
 		&& mkdir -p /var/run/php
 
 # Copy configs files
