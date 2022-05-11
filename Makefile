@@ -138,6 +138,15 @@ wp-create-comment-7:
 wp-create-post:
 	@make defense-intrm SERVICE=wordpress COMMANDS="wp --allow-root post create --post_content=\"Bienvenue sur Inception: Le Website.\" --post_title=\"Wilkommen\" --comment_status=open --tags_input=\"inception\" --post_status=publish"
 
+mariadb-show-databases-root-nopass:
+	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SHOW DATABASES;\\\" | mysql -u inception_webmaster \""
+
+mariadb-show-databases-root:
+	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SHOW DATABASES;\\\" | mysql -u inception_webmaster -p\""
+
+mariadb-show-databases:
+	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SHOW DATABASES;\\\" | mysql -u alellouc -p\""
+
 mariadb-consult-users:
 	@make defense-intrm SERVICE=mariadb COMMANDS="/bin/bash -c \"echo \\\"SELECT * FROM inception.inception_users;\\\" | mysql -u alellouc -p\""
 
@@ -152,10 +161,15 @@ defense-intrm:
 
 lynx:
 	@if [ -x /usr/bin/lynx ] || [ `which lynx 2>&1 > /dev/null` -eq 0 ]; then \
+		curl -v https://alellouc.42.fr; \
 		lynx https://alellouc.42.fr; \
 	else \
 		echo "browser lynx is not installed."; \
 	fi
+
+check-http:
+	lynx http://alellouc.42.fr
+	curl -v http://alellouc.42.fr
 
 ################################################################################
 clean:
