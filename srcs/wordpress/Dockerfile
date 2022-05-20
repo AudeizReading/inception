@@ -22,8 +22,8 @@ LABEL	maintainer $MAINTAINER
 # repository. It is the repository of the maintainer of the php packages (he
 # explains this very well on his main website page. He is a debian dev.) 
 # But we have to add manually this repository to our system
-RUN		apt-get update -y && apt-get upgrade -y \
-		&& apt-get install -y -q \
+RUN		apt-get update -yq && apt-get upgrade -yq \
+		&& apt-get install -yq \
 			apt-transport-https \
 			ca-certificates \
 			curl \
@@ -31,8 +31,8 @@ RUN		apt-get update -y && apt-get upgrade -y \
 		&& curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg \
 		https://packages.sury.org/php/apt.gpg \
 		&& sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' \
-		&& apt-get update -y \
-		&& apt-get install -y \
+		&& apt-get update -yq \
+		&& apt-get install -yq \
 			# best practice to range the packages by alphabetical order
 			less \
 			php8.1 \

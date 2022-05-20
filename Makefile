@@ -190,7 +190,7 @@ fclean: clean
 prune:
 	@${PRUNE}
 
-re: fclean all
+re: fclean up
 
 deluser-vol:
 	@${ECHO} "deleting user volumes...\r"
@@ -199,3 +199,6 @@ deluser-vol:
 	elif [ -d ${VOLUMES} ]; \
 		then ${RM} ${VOLUMES};\
 	fi
+
+purge: fclean prune
+	sudo make deluser-vol

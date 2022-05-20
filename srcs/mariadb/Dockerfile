@@ -10,9 +10,9 @@ ARG		MAINTAINER
 
 LABEL	maintainer $MAINTAINER
 
-RUN		apt-get update -y && apt-get install -y perl curl; \ 
+RUN		apt-get update -yq && apt-get install -yq perl curl; \ 
 		curl -LsS https://r.mariadb.com/downloads/mariadb_repo_setup | bash; \
-		apt-get update -y && apt-get install -y \
+		apt-get update -yq && apt-get install -yq \
 			libmariadb3 \
 			mariadb-common \
 			mariadb-server 

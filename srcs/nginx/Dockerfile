@@ -13,8 +13,9 @@ ARG		SSL_PATH
 LABEL	maintainer $MAINTAINER
 
 # Downloading nginx pnd ssl ackages
-RUN		apt-get update -y \
+RUN		apt-get update -yq \
 		&& apt-get install -y -q \
+			perl \
 			ca-certificates \
 			nginx-full \
 			openssl
