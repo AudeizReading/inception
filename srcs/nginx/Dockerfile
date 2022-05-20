@@ -3,7 +3,7 @@
 # As allowed, taking the debian:buster image already existing
 # I do not know how to build an OS like this without this option, maybe by
 # looking at the Dockerfile of the debian image, but I only doubt that is the
-# purpoose of the subject
+# purpose of the subject
 FROM	debian:buster
 
 ARG		FQDN
@@ -19,14 +19,13 @@ RUN		apt-get update -y \
 			nginx-full \
 			openssl
 
-# Copying script and config for generating ssl key. Run the script before
+# Copying script for generating ssl key. Run the script before
 # deleting it (no more need)
-COPY	/tools/gen-ssl-certs.sh /tmp/gen-ssl-certs.sh
-COPY	/conf/ca-ssl.cnf /tmp/ca-ssl.cnf
+COPY	/tools/autosigned-cert-ssl.sh /tmp/autosigned-cert-ssl.sh
 
 RUN		cd /tmp \
-		&& ./gen-ssl-certs.sh $SSL_PATH ./ca-ssl.cnf $FQDN \
-		&& rm -rf ./gen-ssl-certs.sh
+		&& ./autosigned-cert-ssl.sh $SSL_PATH inception $FQDN \
+		&& rm -rf ./autosigned-cert-ssl.sh
 		
 # Copying config files needed for the well nginx running
 # Intercepts 443 traffic
